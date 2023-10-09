@@ -1,4 +1,4 @@
-FROM openjdk:8-jdk
+FROM openjdk:11-jdk
 
 RUN apt-get update && apt-get install -y git curl && rm -rf /var/lib/apt/lists/*
 
@@ -36,10 +36,12 @@ COPY init.groovy /usr/share/jenkins/ref/init.groovy.d/tcp-slave-agent-port.groov
 
 # jenkins version being bundled in this docker image
 ARG JENKINS_VERSION
-ENV JENKINS_VERSION ${JENKINS_VERSION:-2.73.2}
+ENV JENKINS_VERSION ${JENKINS_VERSION:-2.381}
 
 # jenkins.war checksum, download will be validated using it
-ARG JENKINS_SHA=f6d1351beef34d980b32f8c463be505445f637e2fc62156fecd42891c53c97d3
+# 2.303.2
+ARG JENKINS_SHA=62ca5dcecbf176452d94d4438488662e223ab9594dccb564f065c63832a47302
+
 
 # Can be used to customize where jenkins.war get downloaded from
 ARG JENKINS_URL=https://repo.jenkins-ci.org/public/org/jenkins-ci/main/jenkins-war/${JENKINS_VERSION}/jenkins-war-${JENKINS_VERSION}.war
@@ -106,3 +108,7 @@ COPY install-plugins.sh /usr/local/bin/install-plugins.sh
 #RUN chmod 644 /var/jenkins_home/.ssh/id_rsa.pub
 ## ssh-keyscan -H github.com >> ~/.ssh/known_hosts
 ## ssh-keyscan -H bitbucket.org >> ~/.ssh/known_hosts
+
+# Fix docker permission denied error
+USER root
+RUN usermod -aG docker jenkins
